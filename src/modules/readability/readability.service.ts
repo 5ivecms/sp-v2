@@ -25,7 +25,20 @@ export class ReadabilityService {
 
   private async readability(url: string): Promise<ReadabilityArticle | null> {
     try {
-      const { data, headers } = await axios.get<string>(url, { timeout: 60000 })
+      const { data, headers, status } = await axios.get<string>(url, {
+        timeout: 120000,
+        maxContentLength: Infinity,
+        maxBodyLength: Infinity,
+        headers: {
+          'User-Agent':
+            'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.5304.88 Safari/537.36',
+          Referer: 'https://google.ru',
+        },
+      })
+
+      if (headers['content-type'] === undefined || headers['content-type'] === null) {
+        return null
+      }
 
       if (headers['content-type'].indexOf('8') === -1) {
         return null
@@ -41,7 +54,7 @@ export class ReadabilityService {
 
       return { ...article, url }
     } catch (e) {
-      //console.log(e)
+      //console.error(e)
       return null
     }
   }

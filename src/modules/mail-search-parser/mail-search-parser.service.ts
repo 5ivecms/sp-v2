@@ -12,7 +12,16 @@ export class MailSearchParserService {
   constructor(private readonly browserService: BrowserService) {}
 
   public async parse(keywords: string[], afterParseKeywordCb?: (data: SearchParserResult) => Promise<void>) {
-    await this.init()
+    await this.webdriverIOParser(keywords, afterParseKeywordCb)
+    return true
+  }
+
+  private async webdriverIOParser(
+    keywords: string[],
+    afterParseKeywordCb?: (data: SearchParserResult) => Promise<void>
+  ) {
+    await this.initWebdriverIO()
+    //const result = await this.parseKeyword(keywords[0])
     for (const keyword of keywords) {
       try {
         const result = await this.parseKeyword(keyword)
@@ -29,14 +38,14 @@ export class MailSearchParserService {
     return true
   }
 
-  private async init() {
+  private async initWebdriverIO() {
     const browser = await this.browserService.initBrowser()
     this.page = new MailRuSearchPage(browser)
   }
 
-  private async parseKeyword(keyword: string) {
+  private async parseKeyword(keyword: string): Promise<SearchParserResult | null> {
     await this.page.openUrl(`https://go.mail.ru/search?q=${keyword}`)
     await this.page.jsPlaceholder.waitForExist({ timeout: 60000, interval: 500, reverse: true })
-    return await this.page.getSearchResultUrls()
+    return await this.page.getSearchResultUrls(keyword)
   }
 }

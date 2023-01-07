@@ -17,7 +17,7 @@ export interface MailSearchPage {
   readonly hasCaptcha: () => Promise<boolean>
   readonly submitCaptcha: () => Promise<void>
   readonly getCaptchaInfo: () => Promise<CaptchaInfo>
-  readonly getSearchResultUrls: () => Promise<SearchParserResult | null>
+  readonly getSearchResultUrls: (keyword: string) => Promise<SearchParserResult | null>
   readonly open: () => Promise<void>
   readonly close: () => Promise<void>
   readonly deleteSession: () => Promise<void>

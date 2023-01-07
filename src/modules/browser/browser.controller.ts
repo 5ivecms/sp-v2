@@ -9,9 +9,4 @@ export class BrowserController {
   public test() {
     return this.browserService.initBrowser()
   }
-
-  @Get('multiremote')
-  public multiRemote() {
-    return this.browserService.multiRemote(2)
-  }
 }
