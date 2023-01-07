@@ -13,8 +13,6 @@
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
-    "start:1": "node -r dotenv/config dist/main dotenv_config_path=1.env",
-    "start:2": "node -r dotenv/config dist/main dotenv_config_path=2.env",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",
