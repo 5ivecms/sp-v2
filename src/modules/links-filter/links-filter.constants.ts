@@ -1,0 +1,28 @@
+export const BAD_EXTENSIONS = ['xml', 'pdf', 'jpg', 'png', 'jpeg', 'svg', 'txt']
+
+export const BAD_DOMAINS = [
+  'yandex.ru',
+  'mail.ru',
+  'youtube.ru',
+  'youtube.com',
+  'vk.com',
+  'avito.ru',
+  'www.youtube.com',
+  'my.mail.ru',
+  'dzen.ru',
+  'ok.ru',
+  '2gis.ru',
+  'www.WildBerries.ru',
+  'WildBerries.ru',
+  'market.yandex.ru',
+  't.me',
+  'm.ok.ru',
+  'pulse.mail.ru',
+  'FB.ru',
+  'rutube.ru',
+  'otvet.mail.ru',
+  'music.yandex.ru',
+  'ru.wikipedia.org',
+  'wikipedia.org',
+  'steamcommunity.com',
+]

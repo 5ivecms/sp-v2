@@ -28,6 +28,7 @@
       "@wdio/mocha-framework",
       "@wdio/devtools-service",
       "webdriverio/async",
+      "Multer"
     ],
   }
 }
