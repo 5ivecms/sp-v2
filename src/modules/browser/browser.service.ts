@@ -1,29 +1,26 @@
 import { Injectable } from '@nestjs/common'
-import { ConfigService } from '@nestjs/config'
 import { remote } from 'webdriverio'
 
 @Injectable()
 export class BrowserService {
-  constructor(private readonly configService: ConfigService) {}
+  constructor() {}
 
-  public async initBrowser() {
-    const headlessConf = this.configService.get<number>('browser.headless')
-
+  public async initBrowser(headless: boolean) {
     const args: string[] = [
+      '--disable-extensions',
       '--disable-application-cache',
       '--log-level=3',
       '--disable-logging',
-      //'--disable-gpu',
       '--no-sandbox',
+      //'--disable-gpu',
     ]
 
-    if (Number(headlessConf) === 1) {
+    if (headless) {
       args.push('--headless')
     }
 
-    return await remote({
+    const browser = await remote({
       reporters: ['dot'],
-      waitforTimeout: 60000,
       logLevel: 'silent',
       capabilities: {
         browserName: 'chrome',
@@ -36,5 +33,9 @@ export class BrowserService {
         },
       },
     })
+
+    await browser.setTimeout({ pageLoad: 2000 })
+
+    return browser
   }
 }

@@ -18,6 +18,8 @@ export interface MailSearchPage {
   readonly submitCaptcha: () => Promise<void>
   readonly getCaptchaInfo: () => Promise<CaptchaInfo>
   readonly getSearchResultUrls: (keyword: string) => Promise<SearchParserResult | null>
+  readonly toNextPage: () => Promise<boolean>
+  readonly waitYandexFrame: () => Promise<void>
   readonly open: () => Promise<void>
   readonly close: () => Promise<void>
   readonly deleteSession: () => Promise<void>

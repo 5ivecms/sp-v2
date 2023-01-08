@@ -10,6 +10,7 @@ import { ParseArticle } from '../modules/wordpress/wordpress.types'
 import { LinksFilterService } from '../modules/links-filter/links-filter.service'
 import { GenerateArticleDto } from '../modules/article-generator/dto'
 import { millisToMinutesAndSeconds } from '../utils'
+import { chunk } from 'lodash'
 
 // Добавить время выполнения потока
 async function wordpressParseArticlesWorker() {
@@ -52,7 +53,8 @@ async function wordpressParseArticlesWorker() {
         }
         const { keyword, urls } = data
         const filteredUrls = linksFilterService.filter({ urls })
-        articlesData.push({ keyword, urls: filteredUrls, addSource: true })
+        const urlChunk = chunk(filteredUrls, 10)[0]
+        articlesData.push({ keyword, urls: urlChunk, addSource: true })
       }
     )
 

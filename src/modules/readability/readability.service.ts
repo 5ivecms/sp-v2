@@ -25,7 +25,7 @@ export class ReadabilityService {
 
   private async readability(url: string): Promise<ReadabilityArticle | null> {
     try {
-      const { data, headers, status } = await axios.get<string>(url, {
+      const { data, headers } = await axios.get<string>(url, {
         timeout: 120000,
         maxContentLength: Infinity,
         maxBodyLength: Infinity,

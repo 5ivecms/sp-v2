@@ -7,6 +7,6 @@ export class BrowserController {
 
   @Get('init-browser')
   public test() {
-    return this.browserService.initBrowser()
+    return this.browserService.initBrowser(false)
   }
 }

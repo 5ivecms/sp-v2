@@ -1,3 +1,4 @@
+import { resolve } from 'path'
 import { ChainablePromiseElement } from 'webdriverio'
 import { SearchParserResult } from '../../../types/search-parser'
 import { MailSearchPage } from '../mail-search.interfaces'
@@ -41,19 +42,17 @@ export default class MailRuSearchPage extends BasePage implements MailSearchPage
     }
   }
 
-  async getSearchResultUrls(): Promise<SearchParserResult | null> {
+  async getSearchResultUrls(keyword: string): Promise<SearchParserResult | null> {
     try {
-      await this.browser.$('body #grid .yandex-frame').waitForExist({ timeout: 60000, interval: 500 })
-
+      await this.browser.switchToFrame(null)
+      await this.browser.$('body #grid .yandex-frame').waitForExist({ timeout: 5000, interval: 500 })
       const yandexFrame = await this.browser.$('body #grid .yandex-frame')
       await this.browser.switchToFrame(yandexFrame)
-      await this.browser.$('.search2 .search2__input .input__box input').waitForExist({ timeout: 60000, interval: 500 })
 
-      const searchInput = await this.browser.$('.search2 .search2__input .input__box input')
-      const keyword = await searchInput.getAttribute('value')
+      await this.waitLoad('.content__left .serp-list')
 
       const serpItems = await this.browser.$$(
-        '.content__left .serp-list .serp-item :not([data-fast-name="video-unisearch"]) .OrganicTitle .OrganicTitle-Link'
+        '.content__left .serp-list .serp-item:not([data-fast-name="video-unisearch"]) .OrganicTitle .OrganicTitle-Link'
       )
 
       let urls: string[] = []
@@ -67,9 +66,64 @@ export default class MailRuSearchPage extends BasePage implements MailSearchPage
 
       return { keyword, urls }
     } catch (e) {
-      console.log(e)
+      await this.browser.switchToParentFrame()
       return null
     }
+  }
+
+  async toNextPage(): Promise<boolean> {
+    await this.browser.switchToFrame(null)
+    const yandexFrame = await this.browser.$('.yandex-frame')
+    await this.browser.switchToFrame(yandexFrame)
+
+    await this.waitLoad('.serp-list')
+    await this.waitLoad('.pager__items')
+
+    const pages = await this.browser.$$('.pager__items .pager__item')
+    const lastPage = pages[pages.length - 1]
+    const lastPageText = await lastPage.getText()
+
+    if (lastPageText.trim() === 'дальше') {
+      await lastPage.click()
+      return true
+    }
+
+    return false
+  }
+
+  async switchToYandexFrame() {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const yandexFrame = await this.browser.$('.yandex-frame')
+        await this.browser.switchToFrame(yandexFrame)
+        resolve(true)
+      } catch (e) {
+        reject(e)
+      }
+    })
+  }
+
+  async waitYandexFrame() {
+    await this.browser.$('.yandex-frame').waitForExist({ timeout: 5000, interval: 500 })
+  }
+
+  async waitLoad(selector: string) {
+    let isLoaded = false
+    const tryCount = 5
+    let count = 0
+
+    while (!isLoaded || count < tryCount) {
+      try {
+        const result = await this.browser.$(selector).waitForExist({ timeout: 5000 })
+        if (result === true) {
+          isLoaded = true
+          break
+        }
+      } catch {}
+      count++
+    }
+
+    return isLoaded
   }
 
   async open(): Promise<void> {
