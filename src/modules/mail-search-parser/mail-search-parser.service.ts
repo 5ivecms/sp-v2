@@ -30,7 +30,7 @@ export class MailSearchParserService {
           await afterParseKeywordCb(result)
         }
       } catch (e) {
-        console.error(e)
+        //console.error(e)
         continue
       }
     }

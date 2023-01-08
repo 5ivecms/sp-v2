@@ -1,11 +1,19 @@
 import { Injectable } from '@nestjs/common'
+import { ensureDir } from 'fs-extra'
+import { path } from 'app-root-path'
 import { remote } from 'webdriverio'
+import { threadId } from 'worker_threads'
 
 @Injectable()
 export class BrowserService {
   constructor() {}
 
   public async initBrowser(headless: boolean) {
+    const chromeProfileFolder = `${path}/chromeProfiles/chromeProfile${threadId}`
+    await ensureDir(chromeProfileFolder)
+
+    console.log('браузер', threadId)
+
     const args: string[] = [
       '--disable-extensions',
       '--disable-application-cache',
@@ -13,6 +21,7 @@ export class BrowserService {
       '--disable-logging',
       '--no-sandbox',
       //'--disable-gpu',
+      `--user-data-dir=${chromeProfileFolder}`,
     ]
 
     if (headless) {
