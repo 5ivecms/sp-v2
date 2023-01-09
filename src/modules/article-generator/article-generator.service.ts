@@ -21,6 +21,10 @@ export class ArticleGeneratorService {
     const { urls, keyword, addSource } = dto
 
     const readabilityArticles = await this.readabilityService.getReadabilityArticleByUrls({ urls })
+    if (!readabilityArticles.length) {
+      return null
+    }
+
     const sanitizedArticles = readabilityArticles
       .filter((article) => article.length >= this.minArticleLength)
       .map((article) => ({ ...article, content: this.sanitize(article.content) }))

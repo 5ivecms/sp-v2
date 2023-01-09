@@ -3,7 +3,9 @@ import * as ac from '@antiadmin/anticaptchaofficial'
 import { readFile } from 'fs-extra'
 
 @Injectable()
-export class XEvilService {
+export class CaptchaService {
+  constructor() {}
+
   public async imageFileToText(file: Express.Multer.File): Promise<string | false> {
     const captcha = file.buffer.toString('base64')
     return await this.imageToText(captcha)

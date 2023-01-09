@@ -1,4 +1,3 @@
-import { resolve } from 'path'
 import { ChainablePromiseElement } from 'webdriverio'
 import { SearchParserResult } from '../../../types/search-parser'
 import { MailSearchPage } from '../mail-search.interfaces'

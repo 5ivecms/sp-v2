@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
+import { threadId } from 'worker_threads'
 import { sleep } from '../../utils'
 import { BrowserService } from '../browser/browser.service'
 import { MailSearchPage } from './mail-search.interfaces'
@@ -13,15 +14,12 @@ export class MailSearchParserService {
   constructor(private readonly browserService: BrowserService, private readonly configService: ConfigService) {}
 
   public async parse(keywords: string[], afterParseKeywordCb?: (data: SearchParserResult) => Promise<void>) {
-    await this.webdriverIOParser(keywords, afterParseKeywordCb)
+    await this.parseKeywords(keywords, afterParseKeywordCb)
     return true
   }
 
-  private async webdriverIOParser(
-    keywords: string[],
-    afterParseKeywordCb?: (data: SearchParserResult) => Promise<void>
-  ) {
-    await this.initWebdriverIO()
+  private async parseKeywords(keywords: string[], afterParseKeywordCb?: (data: SearchParserResult) => Promise<void>) {
+    await this.init()
 
     for (const keyword of keywords) {
       try {
@@ -41,7 +39,7 @@ export class MailSearchParserService {
     return true
   }
 
-  private async initWebdriverIO() {
+  private async init() {
     const headlessConf = this.configService.get<number>('browser.headless')
     const browser = await this.browserService.initBrowser(Number(headlessConf) === 1)
     this.page = new MailRuSearchPage(browser)
@@ -60,6 +58,7 @@ export class MailSearchParserService {
         const result = await this.page.getSearchResultUrls(keyword)
         if (result) {
           result.urls.forEach((url) => urls.push(url))
+          //console.log(`Ссылки получены threadId ${threadId}`)
         } else {
           continue
         }

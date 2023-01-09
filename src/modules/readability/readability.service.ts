@@ -15,6 +15,10 @@ export class ReadabilityService {
   public async getReadabilityArticleByUrls(dto: GetReadabilityArticleByUrlsDto): Promise<ReadabilityArticle[]> {
     const { urls } = dto
     const result = await Promise.allSettled(urls.map(async (url) => await this.readability(url)))
+    if (!result) {
+      return []
+    }
+
     const fulfilledData = result
       .filter((data) => data.status === 'fulfilled')
       .filter((data: any) => data.value !== null)
@@ -26,7 +30,7 @@ export class ReadabilityService {
   private async readability(url: string): Promise<ReadabilityArticle | null> {
     try {
       const { data, headers } = await axios.get<string>(url, {
-        timeout: 120000,
+        timeout: 20000,
         maxContentLength: Infinity,
         maxBodyLength: Infinity,
         headers: {

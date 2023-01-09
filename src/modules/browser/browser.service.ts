@@ -11,6 +11,7 @@ export class BrowserService {
   public async initBrowser(headless: boolean) {
     const chromeProfileFolder = `${path}/chromeProfiles/chromeProfile${threadId}`
     await ensureDir(chromeProfileFolder)
+    await ensureDir(`${path}/captcha`)
 
     console.log('браузер', threadId)
 
@@ -43,7 +44,7 @@ export class BrowserService {
       },
     })
 
-    await browser.setTimeout({ pageLoad: 2000 })
+    await browser.setTimeout({ pageLoad: 5000 })
 
     return browser
   }

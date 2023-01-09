@@ -35,6 +35,7 @@ export class WordpressService {
       })
       return data
     } catch (e) {
+      console.error(e)
       throw new Error('Error when getting keywords')
     }
   }
