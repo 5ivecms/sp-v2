@@ -48,7 +48,11 @@ export class WordpressService {
         timeout: 180000,
       })
     } catch (e) {
-      console.log(e)
+      if (e.code === 'ECONNABORTED') {
+        console.log('AXIOS TIMEOUT ПРИ ПОСТИНГЕ')
+      } else {
+        console.log(e)
+      }
     }
   }
 
