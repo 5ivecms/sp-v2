@@ -30,7 +30,6 @@ async function wordpressParseArticlesWorker() {
 
   while (isParsing) {
     const start = new Date().getTime()
-    console.log(`Генерация статей начата, threadId ${threadId}`)
     let keywords: WordpressKeyword[] = []
 
     try {
@@ -85,7 +84,6 @@ async function wordpressParseArticlesWorker() {
     const parsingEnd = new Date().getTime()
     const parsingEndTime = parsingEnd - parsingStart
     console.log(`Парсинг ссылок завершен, threadId ${threadId}: ${millisToMinutesAndSeconds(parsingEndTime)}`)
-    //generateArticlesWorker(articlesData, keywords)
 
     console.log(`Генерируем статьи, threadId ${threadId}`)
     const generateStart = new Date().getTime()
@@ -103,18 +101,29 @@ async function wordpressParseArticlesWorker() {
     const generateEnd = new Date().getTime()
     const generateEndTime = generateEnd - generateStart
     console.log(`Генерация статей завершена, threadId ${threadId}: ${millisToMinutesAndSeconds(generateEndTime)}`)
-
     console.log(generatedResult.length, parseArticles.length)
-    await wordpressService.saveArticles(parseArticles)
 
+    const postingStart = new Date().getTime()
+    await wordpressService.saveArticles(parseArticles)
     const postingEnd = new Date().getTime()
-    const postingEndTime = postingEnd - start
+    const postingEndTime = postingEnd - postingStart
+
     console.log(`Постинг статей завершен, threadId ${threadId}: ${millisToMinutesAndSeconds(postingEndTime)}`)
 
     const end = new Date().getTime()
     const time = end - start
-    console.log(`Время выполнения, threadId ${threadId}: ${millisToMinutesAndSeconds(time)}`)
+
     console.log('')
+    console.log('')
+    console.log('=================')
+    console.log(`threadId: ${threadId}`)
+    console.log(`Ожидание статей: ${generatedResult.length}`)
+    console.log(`На выходе статей: ${parseArticles.length}`)
+    console.log(`Парсинг ссылок: ${millisToMinutesAndSeconds(parsingEndTime)}`)
+    console.log(`Генерация статей: ${millisToMinutesAndSeconds(generateEndTime)}`)
+    console.log(`Постинг: ${millisToMinutesAndSeconds(postingEndTime)}`)
+    console.log(`Время выполнения: ${millisToMinutesAndSeconds(time)}`)
+    console.log('=================')
     console.log('')
     console.log('')
   }
@@ -123,8 +132,3 @@ async function wordpressParseArticlesWorker() {
 }
 
 wordpressParseArticlesWorker()
-
-function generateArticlesWorker(articlesData: GenerateArticleDto[], keywords: WordpressKeyword[]) {
-  const workerData = { articlesData, keywords }
-  const worker = new Worker(generateArticlesFilePath, { workerData })
-}

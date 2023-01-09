@@ -13,8 +13,6 @@ export class BrowserService {
     await ensureDir(chromeProfileFolder)
     await ensureDir(`${path}/captcha`)
 
-    console.log('браузер', threadId)
-
     const args: string[] = [
       '--disable-extensions',
       '--disable-application-cache',
@@ -44,7 +42,7 @@ export class BrowserService {
       },
     })
 
-    await browser.setTimeout({ pageLoad: 5000 })
+    //await browser.setTimeout({ pageLoad: 5000 })
 
     return browser
   }

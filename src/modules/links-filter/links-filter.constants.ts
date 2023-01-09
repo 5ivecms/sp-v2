@@ -87,4 +87,5 @@ export const BAD_DOMAINS = [
   'zen.yandex.ru',
   'OZON.ru',
   'ozon.ru',
+  'www.OZON.ru',
 ]

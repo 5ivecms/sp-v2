@@ -47,10 +47,10 @@ export class MailSearchParserService {
 
   private async parseKeyword(keyword: string): Promise<SearchParserResult | null> {
     const startPage = Number(this.configService.get<number>('mailSearch.startPage'))
-    const lastPage = Number(this.configService.get<number>('mailSearch.lastPage'))
+    const lastPage = 1
+    //const lastPage = Number(this.configService.get<number>('mailSearch.lastPage'))
 
     await this.page.openUrl(`https://go.mail.ru/search?q=${keyword}`)
-    await this.page.waitYandexFrame()
 
     const urls: string[] = []
     for (let i = 1; i <= lastPage; i++) {
@@ -62,9 +62,6 @@ export class MailSearchParserService {
         } else {
           continue
         }
-      }
-      if (lastPage > 1) {
-        await this.page.toNextPage()
       }
     }
 
