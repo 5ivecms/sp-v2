@@ -15,9 +15,6 @@ import { MailSearchParserService } from '../modules/mail-search-parser/mail-sear
 
 // Добавить время выполнения потока
 async function wordpressParseArticlesWorker() {
-  const currentDate = new Date()
-  const currentTime = `${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()}`
-
   const app = await NestFactory.createApplicationContext(AppModule, { logger: false })
   const configService = app.get(ConfigService)
   const wordpressService = app.get(WordpressService)
@@ -31,6 +28,9 @@ async function wordpressParseArticlesWorker() {
   let isParsing = true
 
   while (isParsing) {
+    const currentDate = new Date()
+    const currentTime = `${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()}`
+
     const start = new Date().getTime()
     let keywords: WordpressKeyword[] = []
 
