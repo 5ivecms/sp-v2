@@ -13,17 +13,25 @@ export class ReadabilityService {
   }
 
   public async getReadabilityArticleByUrls(dto: GetReadabilityArticleByUrlsDto): Promise<ReadabilityArticle[]> {
+    const { urls } = dto
+
     try {
-      const { urls } = dto
       const result = await Promise.allSettled(urls.map(async (url) => await this.readability(url)))
       const fulfilledData = result
         .filter((data) => data.status === 'fulfilled')
         .filter((data: any) => data.value !== null)
-      const readabilityArticles = fulfilledData.map((data: any) => data.value as ReadabilityArticle)
 
+      const readabilityArticles = fulfilledData.map((data: any) => data.value as ReadabilityArticle)
       return readabilityArticles
     } catch (e) {
+      console.log('')
+      console.log('========================')
+      console.log('ТА САМАЯ ЕБАНУТАЯ ОШИБКА')
+      console.log('urls')
+      console.log(urls)
       console.error(e)
+      console.log('========================')
+      console.log('')
       return []
     }
   }

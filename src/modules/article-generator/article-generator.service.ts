@@ -20,6 +20,10 @@ export class ArticleGeneratorService {
   public async generate(dto: GenerateArticleDto) {
     const { urls, keyword, addSource } = dto
 
+    if (urls.length < this.minArticleCount) {
+      return null
+    }
+
     const readabilityArticles = await this.readabilityService.getReadabilityArticleByUrls({ urls })
     if (!readabilityArticles.length) {
       return null
