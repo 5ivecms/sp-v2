@@ -15,6 +15,9 @@ import { MailSearchParserService } from '../modules/mail-search-parser/mail-sear
 
 // Добавить время выполнения потока
 async function wordpressParseArticlesWorker() {
+  const currentDate = new Date()
+  const currentTime = `${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()}`
+
   const app = await NestFactory.createApplicationContext(AppModule, { logger: false })
   const configService = app.get(ConfigService)
   const wordpressService = app.get(WordpressService)
@@ -113,13 +116,13 @@ async function wordpressParseArticlesWorker() {
 
     console.log('========================')
     console.log(`threadId: ${threadId}`)
-    console.log(`Начало в ${parseMillisecondsIntoReadableTime(parsingStart)}`)
+    console.log(`Начало в ${currentTime}`)
     console.log(`Ожидание статей: ${generatedResult.length}`)
     console.log(`На выходе статей: ${parseArticles.length}`)
-    console.log(`Парсинг ссылок: ${parseMillisecondsIntoReadableTime(parsingEndTime)}`)
-    console.log(`Генерация статей: ${parseMillisecondsIntoReadableTime(generateEndTime)}`)
-    console.log(`Постинг: ${parseMillisecondsIntoReadableTime(postingEndTime)}`)
-    console.log(`Время выполнения: ${parseMillisecondsIntoReadableTime(time)}`)
+    console.log(`Парсинг ссылок: ${millisToMinutesAndSeconds(parsingEndTime)}`)
+    console.log(`Генерация статей: ${millisToMinutesAndSeconds(generateEndTime)}`)
+    console.log(`Постинг: ${millisToMinutesAndSeconds(postingEndTime)}`)
+    console.log(`Время выполнения: ${millisToMinutesAndSeconds(time)}`)
     console.log('========================')
   }
 
