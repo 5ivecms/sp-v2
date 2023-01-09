@@ -113,6 +113,7 @@ async function wordpressParseArticlesWorker() {
 
     console.log('========================')
     console.log(`threadId: ${threadId}`)
+    console.log(`Начало в ${millisToMinutesAndSeconds(parsingStart)}`)
     console.log(`Ожидание статей: ${generatedResult.length}`)
     console.log(`На выходе статей: ${parseArticles.length}`)
     console.log(`Парсинг ссылок: ${millisToMinutesAndSeconds(parsingEndTime)}`)
