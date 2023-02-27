@@ -9,12 +9,13 @@ import { WordpressService } from '../modules/wordpress/wordpress.service'
 import { ParseArticle, WordpressKeyword } from '../modules/wordpress/wordpress.types'
 import { LinksFilterService } from '../modules/links-filter/links-filter.service'
 import { GenerateArticleDto } from '../modules/article-generator/dto'
-import { millisToMinutesAndSeconds, parseMillisecondsIntoReadableTime } from '../utils'
+import { millisToMinutesAndSeconds } from '../utils'
 import { YandexSearchParserService } from '../modules/yandex-search-parser/yandex-search-parser.service'
 import { MailSearchParserService } from '../modules/mail-search-parser/mail-search-parser.service'
 
 // Добавить время выполнения потока
 async function wordpressParseArticlesWorker() {
+  console.log(`Поток ${threadId} начал работу работу`)
   const app = await NestFactory.createApplicationContext(AppModule, { logger: false })
   const configService = app.get(ConfigService)
   const wordpressService = app.get(WordpressService)
@@ -52,6 +53,7 @@ async function wordpressParseArticlesWorker() {
     const parsingStart = new Date().getTime()
     const articlesData: GenerateArticleDto[] = []
 
+    console.log(`Поток ${threadId} собирает ссылки`)
     if (searchEngine === 'yandex') {
       await yandexSearchParserService.parse(
         keywords.map(({ keyword }) => keyword),
@@ -76,6 +78,7 @@ async function wordpressParseArticlesWorker() {
           }
           const { keyword, urls } = data
           const filteredUrls = linksFilterService.filter({ urls })
+          //console.log(`Поток ${threadId}: filteredUrls ${filteredUrls.length}`)
           if (filteredUrls.length > 10) {
             const urlChunk = chunk(filteredUrls, 10)[0]
             if (urlChunk) {
@@ -88,6 +91,7 @@ async function wordpressParseArticlesWorker() {
       )
     }
 
+    console.log(`Поток ${threadId} генерирует статьи`)
     const parsingEnd = new Date().getTime()
     const parsingEndTime = parsingEnd - parsingStart
 
@@ -103,6 +107,7 @@ async function wordpressParseArticlesWorker() {
       article: { content: article, shortContent: excerpt, tableContent: '', thumb: '' },
     }))
 
+    console.log(`Поток ${threadId} сохраняет статьи`)
     const generateEnd = new Date().getTime()
     const generateEndTime = generateEnd - generateStart
 
@@ -117,6 +122,7 @@ async function wordpressParseArticlesWorker() {
     console.log('========================')
     console.log(`threadId: ${threadId}`)
     console.log(`Начало в ${currentTime}`)
+    console.log(`articlesData: ${articlesData.length}`)
     console.log(`Ожидание статей: ${generatedResult.length}`)
     console.log(`На выходе статей: ${parseArticles.length}`)
     console.log(`Парсинг ссылок: ${millisToMinutesAndSeconds(parsingEndTime)}`)
@@ -126,6 +132,7 @@ async function wordpressParseArticlesWorker() {
     console.log('========================')
   }
 
+  console.log(`Поток ${threadId} завершил работу`)
   parentPort.postMessage(true)
 }
 

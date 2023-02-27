@@ -17,23 +17,32 @@ export class ArticleGeneratorService {
     this.maxArticleCount = +this.configService.get<number>('articleGenerator.maxArticleCount')
   }
 
-  public async generate(dto: GenerateArticleDto) {
+  public async generate(dto: GenerateArticleDto): Promise<{
+    article: string
+    excerpt: string
+    keyword: string
+  } | null> {
     const { urls, keyword, addSource } = dto
 
     if (urls.length < this.minArticleCount) {
+      //console.log(`Поток ${threadId}, urls: ${urls.length}, urls.length < this.minArticleCount`)
       return null
     }
 
     const readabilityArticles = await this.readabilityService.getReadabilityArticleByUrls({ urls })
     if (!readabilityArticles.length) {
+      //console.log(`Поток ${threadId} readabilityArticles.length = 0`)
       return null
     }
 
     const sanitizedArticles = readabilityArticles
-      .filter((article) => article.length >= this.minArticleLength)
+      .filter((article) => article.content !== undefined)
+      .filter((article) => article.content !== null)
+      .filter((article) => article.content.length >= this.minArticleLength)
       .map((article) => ({ ...article, content: this.sanitize(article.content) }))
 
     if (sanitizedArticles.length < this.minArticleCount) {
+      //console.log(`Поток ${threadId} sanitizedArticles.length < this.minArticleCount`)
       return null
     }
 
@@ -49,86 +58,91 @@ export class ArticleGeneratorService {
 
     const article = resultArticlesContent.join('\n')
 
-    return { article, excerpt: sanitizedArticles[0].excerpt, keyword }
+    return { article, excerpt: articlesChunk[0].excerpt, keyword }
   }
 
-  private sanitize(content: string): string {
-    const sanitizeHtmlArticleContent = sanitizeHtml(content, {
-      allowedTags: [
-        'img',
-        'address',
-        'article',
-        'aside',
-        'footer',
-        'header',
-        'h1',
-        'h2',
-        'h3',
-        'h4',
-        'h5',
-        'h6',
-        'hgroup',
-        'main',
-        'nav',
-        'section',
-        'blockquote',
-        'dd',
-        'div',
-        'dl',
-        'dt',
-        'figcaption',
-        //'figure',
-        'hr',
-        'li',
-        'main',
-        'ol',
-        'p',
-        'pre',
-        'ul',
-        //'a',
-        'abbr',
-        'b',
-        'bdi',
-        'bdo',
-        'br',
-        'cite',
-        'code',
-        'data',
-        'dfn',
-        'em',
-        'i',
-        'kbd',
-        'mark',
-        'q',
-        'rb',
-        'rp',
-        'rt',
-        'rtc',
-        'ruby',
-        's',
-        'samp',
-        'small',
-        'span',
-        'strong',
-        'sub',
-        'sup',
-        'time',
-        'u',
-        'var',
-        'wbr',
-        //'caption',
-        'col',
-        'colgroup',
-        'table',
-        'tbody',
-        'td',
-        'tfoot',
-        'th',
-        'thead',
-        'tr',
-      ],
-    })
-    return sanitizeHtmlArticleContent
+  private sanitize(content: string): string | null {
+    try {
+      const sanitizeHtmlArticleContent = sanitizeHtml(content, {
+        allowedTags: [
+          'img',
+          'address',
+          'article',
+          'aside',
+          'footer',
+          'header',
+          'h1',
+          'h2',
+          'h3',
+          'h4',
+          'h5',
+          'h6',
+          'hgroup',
+          'main',
+          'nav',
+          'section',
+          'blockquote',
+          'dd',
+          'div',
+          'dl',
+          'dt',
+          'figcaption',
+          //'figure',
+          'hr',
+          'li',
+          'main',
+          'ol',
+          'p',
+          'pre',
+          'ul',
+          //'a',
+          'abbr',
+          'b',
+          'bdi',
+          'bdo',
+          'br',
+          'cite',
+          'code',
+          'data',
+          'dfn',
+          'em',
+          'i',
+          'kbd',
+          'mark',
+          'q',
+          'rb',
+          'rp',
+          'rt',
+          'rtc',
+          'ruby',
+          's',
+          'samp',
+          'small',
+          'span',
+          'strong',
+          'sub',
+          'sup',
+          'time',
+          'u',
+          'var',
+          'wbr',
+          //'caption',
+          'col',
+          'colgroup',
+          'table',
+          'tbody',
+          'td',
+          'tfoot',
+          'th',
+          'thead',
+          'tr',
+        ],
+      })
+      return sanitizeHtmlArticleContent
+    } catch (e) {
+      console.error(e)
+      return null
+    }
   }
 
   private generateSourceBlock(url: string) {

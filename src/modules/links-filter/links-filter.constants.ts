@@ -88,4 +88,11 @@ export const BAD_DOMAINS = [
   'OZON.ru',
   'ozon.ru',
   'www.OZON.ru',
+  'petr-panda.ru',
+  'www.petr-panda.ru',
+  'znanija.com',
+  'znanija.site',
+  'wikipedia.org',
+  'znanija.net',
+  'znaniia.com',
 ]

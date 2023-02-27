@@ -1,51 +1,100 @@
 import { ChainablePromiseElement } from 'webdriverio'
 import { SearchParserResult } from '../../../types/search-parser'
-import { MailSearchPage } from '../mail-search.interfaces'
 import BasePage from './base.page'
 
-export default class MailRuSearchPage extends BasePage implements MailSearchPage {
+export default class MailRuSearchPage extends BasePage {
   get jsPlaceholder(): ChainablePromiseElement<WebdriverIO.Element> {
     return this.browser.$('#js-preloader')
   }
 
-  get captchaBlock(): ChainablePromiseElement<WebdriverIO.Element> {
-    return this.browser.$('.DesktopCaptcha-captchaBlock')
+  async switchToYandexFrame() {
+    await this.browser.$('body #grid .yandex-frame').waitForExist({ timeout: 5000 })
+    const yandexFrame = await this.browser.$('body #grid .yandex-frame')
+    await this.browser.switchToFrame(yandexFrame)
   }
 
-  get captchaImg(): ChainablePromiseElement<WebdriverIO.Element> {
-    return this.browser.$('img.DesktopCaptcha-captchaImage')
-  }
+  async hasSearchResults() {
+    try {
+      const isExist = await this.browser.$('.content__left .serp-list').waitForExist({ timeout: 5000 })
 
-  get captchaField(): ChainablePromiseElement<WebdriverIO.Element> {
-    return this.browser.$('input.DesktopCaptcha-captchaInput')
-  }
+      if (isExist === true) {
+        return true
+      }
 
-  get captchaButton(): ChainablePromiseElement<WebdriverIO.Element> {
-    return this.browser.$('form.DesktopCaptcha-captchaForm button[type="submit"]')
-  }
-
-  async hasCaptcha(): Promise<boolean> {
-    return await this.captchaImg.isExisting()
-  }
-
-  async submitCaptcha(): Promise<void> {
-    await this.captchaButton.click()
-  }
-
-  async getCaptchaInfo() {
-    return {
-      x: await this.captchaImg.getLocation('x'),
-      y: await this.captchaImg.getLocation('y'),
-      width: await this.captchaImg.getSize('width'),
-      height: await this.captchaImg.getSize('height'),
+      return false
+    } catch (e) {
+      //console.log(e)
     }
+    return false
+  }
+
+  async hasCheckboxCaptcha() {
+    try {
+      const hasCaptcha = await this.browser.$('.CheckboxCaptcha').waitForExist({
+        timeout: 5000,
+      })
+
+      if (hasCaptcha === true) {
+        return true
+      }
+    } catch (e) {
+      //console.error('Капчи нет или возникла ошибка')
+      return null
+    }
+
+    return false
+  }
+
+  async clickToCheckboxCaptcha() {
+    try {
+      await this.browser.$('.CheckboxCaptcha-Button').waitForExist({ timeout: 5000 })
+      await this.browser.$('.CheckboxCaptcha').waitForExist({
+        timeout: 5000,
+      })
+      await this.browser.$('.CheckboxCaptcha-Button').click()
+    } catch {
+      //console.error('Ошибка при клике по чекбокс капче')
+    }
+  }
+
+  async hasSmartCaptcha() {
+    try {
+      const hasCaptcha = await this.browser.$('.AdvancedCaptcha-Image').waitForExist({
+        timeout: 5000,
+      })
+
+      if (hasCaptcha === true) {
+        //console.log(`Есть смарт капча`)
+        return true
+      }
+    } catch {
+      //console.error('Смарт капчи нет или возникла ошибка')
+      return null
+    }
+
+    return false
+  }
+
+  async saveSmartCaptchaImage(path: string) {
+    try {
+      await this.browser.$('.AdvancedCaptcha-Image').waitForExist({ timeout: 5000 })
+      await this.browser.$('.AdvancedCaptcha-Image').saveScreenshot(path)
+      return true
+    } catch {
+      //console.log('Ошибка при сохранении изображения капчи')
+      return false
+    }
+  }
+
+  async submitImageCaptcha(value: string) {
+    await this.browser.$('.Textinput-Control[name="rep"]').waitForExist({ timeout: 5000 })
+    await this.browser.$('.CaptchaButton[type="submit"]').waitForExist({ timeout: 5000 })
+    await this.browser.$('.Textinput-Control[name="rep"]').setValue(value)
+    await this.browser.$('.CaptchaButton[type="submit"]').click()
   }
 
   async getSearchResultUrls(keyword: string): Promise<SearchParserResult | null> {
     try {
-      await this.browser.$('body #grid .yandex-frame').waitForExist({ timeout: 5000 })
-      const yandexFrame = await this.browser.$('body #grid .yandex-frame')
-      await this.browser.switchToFrame(yandexFrame)
       await this.browser.$('.content__left .serp-list').waitForExist({ timeout: 5000 })
 
       const serpItems = await this.browser.$$(
@@ -61,7 +110,7 @@ export default class MailRuSearchPage extends BasePage implements MailSearchPage
 
       return { keyword, urls }
     } catch (e) {
-      //console.error(e)
+      //console.log(e)
       return null
     }
   }

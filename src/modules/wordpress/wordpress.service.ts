@@ -45,14 +45,16 @@ export class WordpressService {
       await axios.post(`${this.domain}${WordpressApiUrls.SAVE_ARTICLE}`, dto, {
         maxBodyLength: Infinity,
         maxContentLength: Infinity,
-        timeout: 180000,
+        timeout: 240000,
       })
+      return true
     } catch (e) {
       if (e.code === 'ECONNABORTED') {
         console.log('AXIOS TIMEOUT ПРИ ПОСТИНГЕ')
       } else {
         console.log(e)
       }
+      return false
     }
   }
 
